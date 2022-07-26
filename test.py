@@ -18,6 +18,8 @@ from utils import  get_training_dataloader, get_test_dataloader, WarmUpLR, \
     most_recent_folder, most_recent_weights, last_epoch, best_acc_weights
 if __name__=='__main__':
     net = resnet18()
+    if settings.GPU:
+        net=net.cuda()
 
     cifar100_test_loader = get_test_dataloader(
         settings.CIFAR100_TRAIN_MEAN,
@@ -27,7 +29,7 @@ if __name__=='__main__':
         batch_size=settings.BATCH_SIZE,
     )
 
-    net.load_state_dict(torch.load('path_to_resnet_weights_file'))
+    net.load_state_dict(torch.load('E://Python program//Resnet//checkpoint//resnet18//Tuesday_26_July_2022_06h_54m_48s//resnet18-121-best.pth'))
     print(net)
     net.eval()
 

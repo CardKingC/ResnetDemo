@@ -53,7 +53,7 @@ def train(epoch):
         #update training loss for each iteration
         writer.add_scalar('Train/loss', loss.item(), n_iter)
 
-        if epoch <= settings.BATCH_SIZE:
+        if epoch <= settings.WARMUP:
             warmup_scheduler.step()
 
     for name, param in net.named_parameters():
