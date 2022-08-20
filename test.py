@@ -29,7 +29,7 @@ if __name__=='__main__':
         batch_size=settings.BATCH_SIZE,
     )
 
-    net.load_state_dict(torch.load('E://Python program//Resnet//checkpoint//resnet18//Tuesday_26_July_2022_06h_54m_48s//resnet18-121-best.pth'))
+    net.load_state_dict(torch.load('E://Python program//Resnet//checkpoint//resnet18\Wednesday_27_July_2022_17h_30m_31s//resnet18-178-best.pth'))
     print(net)
     net.eval()
 
