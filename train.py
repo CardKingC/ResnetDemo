@@ -28,7 +28,9 @@ def train(epoch):
             images = images.cuda()
 
         optimizer.zero_grad()
-        outputs = net(images)
+        outputs = net(images).view(-1)
+        outputs=outputs.to(torch.float)
+        labels=labels.to(torch.float)
         loss = loss_function(outputs, labels)
         loss.backward()
         optimizer.step()
@@ -81,6 +83,10 @@ def eval_training(epoch=0, tb=True):
             labels = labels.cuda()
 
         outputs = net(images)
+
+        outputs = outputs.to(torch.float)
+        labels = labels.to(torch.float)
+
         loss = loss_function(outputs, labels)
 
         test_loss += loss.item()
@@ -128,7 +134,8 @@ if __name__=='__main__':
         shuffle=True
     )
 
-    loss_function = nn.CrossEntropyLoss()
+    #loss_function = nn.CrossEntropyLoss()
+    loss_function = nn.BCELoss()
     optimizer = optim.SGD(net.parameters(), lr=settings.LR, momentum=0.9, weight_decay=5e-4)
     train_scheduler = optim.lr_scheduler.MultiStepLR(optimizer, milestones=settings.MILESTONES,
                                                      gamma=0.2)  # learning rate decay

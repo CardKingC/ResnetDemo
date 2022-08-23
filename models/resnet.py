@@ -96,6 +96,7 @@ class ResNet(nn.Module):
         self.conv5_x = self._make_layer(block, 512, num_block[3], 2)
         self.avg_pool = nn.AdaptiveAvgPool2d((1, 1))
         self.fc = nn.Linear(512 * block.expansion, num_classes)
+        self.sigmoid=nn.Sigmoid()
 
     def _make_layer(self, block, out_channels, num_blocks, stride):
         """make resnet layers(by layer i didnt mean this 'layer' was the
@@ -131,13 +132,13 @@ class ResNet(nn.Module):
         output = self.avg_pool(output)
         output = output.view(output.size(0), -1)
         output = self.fc(output)
-
+        output=self.sigmoid(output)
         return output
 
 def resnet18():
     """ return a ResNet 18 object
     """
-    return ResNet(BasicBlock, [2, 2, 2, 2],2)
+    return ResNet(BasicBlock, [2, 2, 2, 2],1)
 
 def resnet34():
     """ return a ResNet 34 object
