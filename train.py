@@ -92,7 +92,11 @@ def eval_training(epoch=0, tb=True):
         loss = loss_function(outputs, labels)
 
         test_loss += loss.item()
-        _, preds = outputs.max(1)
+        """   第一种的是输出为多类别的情况下用来判断识别类的方法
+                第二种为二分类情况下输出为概率使用的方法
+         """
+        #_, preds = outputs.max(1)
+        preds=(outputs>0.5).to(torch.int)
         correct += preds.eq(labels).sum()
 
     finish = time.time()

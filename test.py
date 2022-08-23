@@ -57,16 +57,22 @@ if __name__=='__main__':
 
             output = net(image)
             #获取最大可能的切片
-            softmax=nn.LogSoftmax(dim=1)
-            output=softmax(output)
-            pro, pred = output.topk(1, 1, largest=True, sorted=True)
+            # softmax=nn.LogSoftmax(dim=1)
+            # output=softmax(output)
 
-            label = label.view(label.size(0), -1).expand_as(pred)
+            '''
+                第一个是多分类使用
+                第二个是二分类使用
+            '''
+            # pro, pred = output.topk(1, 1, largest=True, sorted=True)
+            # label = label.view(label.size(0), -1).expand_as(pred)
+            pred = (output > 0.5).to(torch.int)
+
             correct = pred.eq(label).float()
 
             # 记录label和概率用于画ROC曲线
             y_true.extend(label.cpu().numpy().reshape(-1).tolist())
-            y_score.extend(pro.cpu().numpy().reshape(-1).tolist())
+            y_score.extend(output.cpu().numpy().reshape(-1).tolist())
             #compute top 5
             correct_5 += correct[:, :5].sum()
 
