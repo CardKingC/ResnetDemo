@@ -10,6 +10,7 @@
 
 import torch
 import torch.nn as nn
+from conf import global_settings as gs
 
 class BasicBlock(nn.Module):
     """Basic Block for resnet 18 and resnet 34
@@ -79,13 +80,13 @@ class BottleNeck(nn.Module):
 
 class ResNet(nn.Module):
 
-    def __init__(self, block, num_block, num_classes=100):
+    def __init__(self, block, num_block, num_classes=1):
         super().__init__()
-
+        input_channels=gs.INPUT_CHANNELS
         self.in_channels = 64
 
         self.conv1 = nn.Sequential(
-            nn.Conv2d(1, 64, kernel_size=3, padding=1, bias=False),
+            nn.Conv2d(input_channels, 64, kernel_size=3, padding=1, bias=False),
             nn.BatchNorm2d(64),
             nn.ReLU(inplace=True))
         #we use a different inputsize than the original paper
@@ -143,22 +144,22 @@ def resnet18():
 def resnet34():
     """ return a ResNet 34 object
     """
-    return ResNet(BasicBlock, [3, 4, 6, 3])
+    return ResNet(BasicBlock, [3, 4, 6, 3],1)
 
 def resnet50():
     """ return a ResNet 50 object
     """
-    return ResNet(BottleNeck, [3, 4, 6, 3])
+    return ResNet(BottleNeck, [3, 4, 6, 3],1)
 
 def resnet101():
     """ return a ResNet 101 object
     """
-    return ResNet(BottleNeck, [3, 4, 23, 3])
+    return ResNet(BottleNeck, [3, 4, 23, 3],1)
 
 def resnet152():
     """ return a ResNet 152 object
     """
-    return ResNet(BottleNeck, [3, 8, 36, 3])
+    return ResNet(BottleNeck, [3, 8, 36, 3],1)
 
 
 

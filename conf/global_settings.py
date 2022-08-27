@@ -29,12 +29,13 @@ WARMUP=1
 #learning rate 调整的批次
 MILESTONES = [60, 120, 160]
 # use gpu or not
-GPU=True
+GPU=False
 #resume training
 RESUME=False
 # net type
 NET='resnet18'
-
+# input channels
+INPUT_CHANNELS=1
 
 #initial learning rate
 #INIT_LR = 0.1

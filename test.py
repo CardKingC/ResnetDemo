@@ -1,3 +1,4 @@
+import argparse
 import os
 import torch
 import torch.nn as nn
@@ -20,10 +21,14 @@ import matplotlib.pyplot as plt
 #导入模型
 from models.resnet import resnet18
 
-from utils import  get_training_dataloader, get_test_dataloader, WarmUpLR, \
-    most_recent_folder, most_recent_weights, last_epoch, best_acc_weights
+from utils import get_training_dataloader, get_test_dataloader, WarmUpLR, \
+    most_recent_folder, most_recent_weights, last_epoch, best_acc_weights, get_network
+
 if __name__=='__main__':
-    net = resnet18()
+    parser = argparse.ArgumentParser()
+    parser.add_argument('-net', type=str, required=True, help='net type')
+    args = parser.parse_args()
+    net = get_network(args)
     if settings.GPU:
         net=net.cuda()
 
@@ -35,7 +40,7 @@ if __name__=='__main__':
         batch_size=settings.BATCH_SIZE,
     )
 
-    net.load_state_dict(torch.load(r'E:\Python program\Resnet\checkpoint\resnet18\Saturday_20_August_2022_21h_47m_29s\resnet18-166-best.pth'))
+    net.load_state_dict(torch.load(r'./checkpoint/resnet18/best/resnet18-199-best.pth'))
     print(net)
     net.eval()
 
@@ -66,6 +71,9 @@ if __name__=='__main__':
             '''
             # pro, pred = output.topk(1, 1, largest=True, sorted=True)
             # label = label.view(label.size(0), -1).expand_as(pred)
+            output=output.view(-1)
+            print(output)
+            print(label)
             pred = (output > 0.5).to(torch.int)
 
             correct = pred.eq(label).float()
@@ -74,25 +82,28 @@ if __name__=='__main__':
             y_true.extend(label.cpu().numpy().reshape(-1).tolist())
             y_score.extend(output.cpu().numpy().reshape(-1).tolist())
             #compute top 5
-            correct_5 += correct[:, :5].sum()
+            #correct_5 += correct[:, :5].sum()
 
             #compute top1
-            correct_1 += correct[:, :1].sum()
+            #correct_1 += correct[:, :1].sum()
+            correct_1 += correct.sum()
+
     if settings.GPU:
         print('GPU INFO.....')
         print(torch.cuda.memory_summary(), end='')
-
+    print(f'total:{len(cifar100_test_loader.dataset)},correct:{correct_1}')
     print("Top 1 err: ", 1 - correct_1 / len(cifar100_test_loader.dataset))
-    print("Top 5 err: ", 1 - correct_5 / len(cifar100_test_loader.dataset))
+   # print("Top 5 err: ", 1 - correct_5 / len(cifar100_test_loader.dataset))
     print("Parameter numbers: {}".format(sum(p.numel() for p in net.parameters())))
 
     #画ROC曲线
-    print(y_true)
-    print(y_score)
+    # print(y_true)
+    # print(y_score)
     fpr, tpr, thersholds = roc_curve(y_true, y_score)
     auc_value=auc(fpr,tpr)
-    for i, value in enumerate(thersholds):
-        print("%f %f %f" % (fpr[i], tpr[i], value))
+    # 逆序输出标签，概率
+    # for i, value in enumerate(thersholds):
+    #     print("%f %f %f" % (fpr[i], tpr[i], value))
 
     roc_auc = auc(fpr, tpr)
     print(f'auc={auc_value}')
