@@ -23,15 +23,16 @@ def train(epoch):
 
     start = time.time()
     net.train()
-    for batch_index, (images, labels) in enumerate(training_loader):
+    for batch_index, (data, labels) in enumerate(training_loader):
 
         if settings.GPU:
             labels = labels.cuda()
-            images = images.cuda()
+            # images = images.cuda()
+            data = {key: value.cuda() for (key, value) in data.items()}
 
         optimizer.zero_grad()
 
-        outputs = net(images).view(-1)
+        outputs = net(data).view(-1)
         outputs=outputs.to(torch.float)
         labels=labels.to(torch.float)
 
@@ -52,7 +53,7 @@ def train(epoch):
             loss.item(),
             optimizer.param_groups[0]['lr'],
             epoch=epoch,
-            trained_samples=batch_index * settings.BATCH_SIZE + len(images),
+            trained_samples=batch_index * settings.BATCH_SIZE + len(data['image']),
             total_samples=len(training_loader.dataset)
         ))
 
@@ -80,14 +81,15 @@ def eval_training(epoch=0, tb=True):
     test_loss = 0.0 # cost function error
     correct = 0.0
 
-    for (images, labels) in test_loader:
+    for (data, labels) in test_loader:
 
         if settings.GPU:
-            images = images.cuda()
+            #images = images.cuda()
+            data={key:value.cuda() for (key,value) in data.items()}
             labels = labels.cuda()
 
-        outputs = net(images)
-        outputs = net(images).view(-1)
+        outputs = net(data)
+        outputs = net(data).view(-1)
         outputs = outputs.to(torch.float)
         labels = labels.to(torch.float)
 
@@ -125,7 +127,7 @@ if __name__=='__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('-net', type=str, required=True, help='net type')
     args = parser.parse_args()
-    net = get_network(args)
+    net = get_network(args.net)
 
     if settings.GPU:
         net = net.cuda()

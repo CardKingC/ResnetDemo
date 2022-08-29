@@ -29,7 +29,7 @@ WARMUP=1
 #learning rate 调整的批次
 MILESTONES = [60, 120, 160]
 # use gpu or not
-GPU=False
+GPU=True
 #resume training
 RESUME=False
 # net type

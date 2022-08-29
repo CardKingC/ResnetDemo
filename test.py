@@ -28,7 +28,7 @@ if __name__=='__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('-net', type=str, required=True, help='net type')
     args = parser.parse_args()
-    net = get_network(args)
+    net = get_network(args.net)
     if settings.GPU:
         net=net.cuda()
 
@@ -55,7 +55,8 @@ if __name__=='__main__':
             print("iteration: {}\ttotal {} iterations".format(n_iter + 1, len(cifar100_test_loader)))
 
             if settings.GPU:
-                image = image.cuda()
+                # images = images.cuda()
+                data = {key: value.cuda() for (key, value) in data.items()}
                 label = label.cuda()
                 print('GPU INFO.....')
                 print(torch.cuda.memory_summary(), end='')
@@ -104,7 +105,6 @@ if __name__=='__main__':
     # 逆序输出标签，概率
     # for i, value in enumerate(thersholds):
     #     print("%f %f %f" % (fpr[i], tpr[i], value))
-
     roc_auc = auc(fpr, tpr)
     print(f'auc={auc_value}')
     fig=plt.figure()
