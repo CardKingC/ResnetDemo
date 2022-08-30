@@ -80,12 +80,13 @@ class BottleNeck(nn.Module):
 
 class ResNet(nn.Module):
 
-    def __init__(self, block, num_block, num_classes=1):
+    def __init__(self, block, num_block, num_classes=1,useCli=True):
         super().__init__()
         input_channels=gs.INPUT_CHANNELS
         self.in_channels = 64
         #额外的数据数量
         self.cdata_num=24
+        self.useCli=useCli
 
         self.conv1 = nn.Sequential(
             nn.Conv2d(input_channels, 64, kernel_size=3, padding=1, bias=False),
@@ -98,7 +99,13 @@ class ResNet(nn.Module):
         self.conv4_x = self._make_layer(block, 256, num_block[2], 2)
         self.conv5_x = self._make_layer(block, 512, num_block[3], 2)
         self.avg_pool = nn.AdaptiveAvgPool2d((1, 1))
-        self.fc = nn.Linear(512 * block.expansion+self.cdata_num, num_classes)
+        if not self.useCli:
+            self.cdata_num=0
+        self.fc = nn.Sequential(
+            nn.Linear(512 * block.expansion+self.cdata_num, 128),
+            nn.Linear(128,32),
+            nn.Linear(32,num_classes)
+        )
         self.sigmoid=nn.Sigmoid()
 
     def _make_layer(self, block, out_channels, num_blocks, stride):
@@ -136,7 +143,8 @@ class ResNet(nn.Module):
         output = self.conv5_x(output)
         output = self.avg_pool(output)
         output = output.view(output.size(0),-1)
-        output=torch.cat((output,cdata),dim=1)
+        if self.useCli:
+            output=torch.cat((output,cdata),dim=1)
         output = self.fc(output)
         output=self.sigmoid(output)
         return output
