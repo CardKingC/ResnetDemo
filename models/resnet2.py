@@ -85,7 +85,7 @@ class ResNet(nn.Module):
         input_channels=gs.INPUT_CHANNELS
         self.in_channels = 64
         #额外的数据数量
-        self.cdata_num=24
+        self.cdata_num=7
         self.useCli=useCli
 
         self.conv1 = nn.Sequential(
@@ -103,8 +103,7 @@ class ResNet(nn.Module):
             self.cdata_num=0
         self.fc = nn.Sequential(
             nn.Linear(512 * block.expansion+self.cdata_num, 128),
-            nn.Linear(128,32),
-            nn.Linear(32,num_classes)
+            nn.Linear(128,num_classes)
         )
         self.sigmoid=nn.Sigmoid()
 
@@ -152,7 +151,7 @@ class ResNet(nn.Module):
 def resnet18():
     """ return a ResNet 18 object
     """
-    return ResNet(BasicBlock, [2, 2, 2, 2],1)
+    return ResNet(BasicBlock, [2, 2, 2, 2],1,True)
 
 def resnet34():
     """ return a ResNet 34 object

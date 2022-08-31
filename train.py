@@ -36,6 +36,10 @@ def train(epoch):
         outputs=outputs.to(torch.float)
         labels=labels.to(torch.float)
 
+        print(outputs)
+        print()
+        print(labels)
+
         loss = loss_function(outputs, labels)
         loss.backward()
         optimizer.step()
@@ -71,6 +75,9 @@ def train(epoch):
     finish = time.time()
 
     print('epoch {} training time consumed: {:.2f}s'.format(epoch, finish - start))
+
+    print('last layer:')
+    print(last_layer)
 
 @torch.no_grad()
 def eval_training(epoch=0, tb=True):
