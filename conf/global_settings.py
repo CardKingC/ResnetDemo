@@ -7,9 +7,9 @@ from datetime import datetime
 
 #CIFAR100 dataset path (python version)
 #CIFAR100_PATH = '/nfs/private/cifar100/cifar-100-python'
-TRAIN_DATASET_PATH='./data/dataset2/train'
-VALID_DATASET_PATH='./data/dataset2/val'
-TEST_DATASET_PATH='./data/dataset2/test'
+TRAIN_DATASET_PATH=r'checkpoint\3\dataset1\train'
+VALID_DATASET_PATH=r'checkpoint\3\dataset1\val'
+TEST_DATASET_PATH=r'checkpoint\3\dataset1\test'
 
 #mean and std of cifar100 dataset
 CIFAR100_TRAIN_MEAN = (0.5070751592371323, 0.48654887331495095, 0.4409178433670343)

@@ -14,8 +14,7 @@ import time
 from datetime import datetime
 
 #画ROC曲线
-from sklearn.metrics import roc_curve
-from sklearn.metrics import auc
+from sklearn.metrics import roc_curve,auc,confusion_matrix,classification_report
 import matplotlib.pyplot as plt
 
 #导入模型
@@ -40,7 +39,7 @@ if __name__=='__main__':
         batch_size=settings.BATCH_SIZE,
     )
 
-    net.load_state_dict(torch.load(r'checkpoint\2\cresnet18-178-best.pth'))
+    net.load_state_dict(torch.load(r'checkpoint\3\cresnet18-512-135-32-1-imgcli.pth'))
     print(net)
     net.eval()
 
@@ -49,6 +48,7 @@ if __name__=='__main__':
     total = 0
     y_true=[]
     y_score=[]
+    y_pred=[]
 
     with torch.no_grad():
         for n_iter, (image, label) in enumerate(cifar100_test_loader):
@@ -58,8 +58,8 @@ if __name__=='__main__':
                 # images = images.cuda()
                 image = {key: value.cuda() for (key, value) in image.items()}
                 label = label.cuda()
-                print('GPU INFO.....')
-                print(torch.cuda.memory_summary(), end='')
+                # print('GPU INFO.....')
+                # print(torch.cuda.memory_summary(), end='')
 
             output = net(image)
             #获取最大可能的切片
@@ -82,19 +82,21 @@ if __name__=='__main__':
             # 记录label和概率用于画ROC曲线
             y_true.extend(label.cpu().numpy().reshape(-1).tolist())
             y_score.extend(output.cpu().numpy().reshape(-1).tolist())
-            #compute top 5
-            #correct_5 += correct[:, :5].sum()
+            y_pred.extend(pred.cpu().numpy().reshape(-1).tolist())
 
-            #compute top1
-            #correct_1 += correct[:, :1].sum()
             correct_1 += correct.sum()
 
-    if settings.GPU:
-        print('GPU INFO.....')
-        print(torch.cuda.memory_summary(), end='')
-    print(f'total:{len(cifar100_test_loader.dataset)},correct:{correct_1}')
-    print("Top 1 err: ", 1 - correct_1 / len(cifar100_test_loader.dataset))
-   # print("Top 5 err: ", 1 - correct_5 / len(cifar100_test_loader.dataset))
+    # if settings.GPU:
+    #     print('GPU INFO.....')
+    #     print(torch.cuda.memory_summary(), end='')
+    TN, FP, FN, TP = confusion_matrix(y_true, y_pred).ravel()
+    P,N=TP+FN,FP+TN
+    accuracy=(TP+TN)/(P+N)
+    sensitive=TP/P
+    specificity=TN/N
+    precision=TP/(TP+FP)
+    print(f'accuracy:{accuracy} ,sensitive:{sensitive} ,specificity:{specificity} ,precision:{precision}')
+    print(classification_report(y_true,y_pred))
     print("Parameter numbers: {}".format(sum(p.numel() for p in net.parameters())))
 
     #画ROC曲线
