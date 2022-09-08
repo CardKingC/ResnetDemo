@@ -148,10 +148,10 @@ class ResNet(nn.Module):
         output=self.sigmoid(output)
         return output
 
-def resnet18():
+def resnet18(useCli=True):
     """ return a ResNet 18 object
     """
-    return ResNet(BasicBlock, [2, 2, 2, 2],1,True)
+    return ResNet(BasicBlock, [2, 2, 2, 2],1,useCli)
 
 def resnet34():
     """ return a ResNet 34 object

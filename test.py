@@ -28,7 +28,7 @@ if __name__=='__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('-net', type=str, required=True, help='net type')
     args = parser.parse_args()
-    net = get_network(args.net)
+    net = get_network(args.net,useCli=True)
     if settings.GPU:
         net=net.cuda()
 
@@ -40,7 +40,7 @@ if __name__=='__main__':
         batch_size=settings.BATCH_SIZE,
     )
 
-    net.load_state_dict(torch.load(r'./checkpoint/resnet18/best/resnet18-199-best.pth'))
+    net.load_state_dict(torch.load(r'checkpoint\2\cresnet18-178-best.pth'))
     print(net)
     net.eval()
 
@@ -56,7 +56,7 @@ if __name__=='__main__':
 
             if settings.GPU:
                 # images = images.cuda()
-                data = {key: value.cuda() for (key, value) in data.items()}
+                image = {key: value.cuda() for (key, value) in image.items()}
                 label = label.cuda()
                 print('GPU INFO.....')
                 print(torch.cuda.memory_summary(), end='')

@@ -15,9 +15,10 @@ import torchvision
 import torchvision.transforms as transforms
 from torch.utils.data import DataLoader,Dataset
 from torchvision.datasets import DatasetFolder
+from conf import global_settings as gs
 
 
-def get_network(net):
+def get_network(net,useCli=False):
     """ return given network
     """
     if net == 'vgg16':
@@ -77,7 +78,7 @@ def get_network(net):
     # 加入临床数据的模型
     elif net == 'cresnet18':
         from models.resnet2 import resnet18
-        net = resnet18()
+        net = resnet18(useCli=useCli)
     elif net == 'cresnet34':
         from models.resnet2 import resnet34
         net = resnet34()
@@ -239,7 +240,7 @@ def get_training_dataloader(mean, std, batch_size=16, num_workers=2, shuffle=Tru
     #train_set=DatasetFolder('./data/dataset/train',loader=lambda x:Image.open(x),extensions='png',transform=transform_train)
 
     #使用自定义数据加载器加载npz文件
-    train_set = ImageClinicalDataset('./data/dataset1/train', loader=loader, extensions='npz',
+    train_set = ImageClinicalDataset(gs.TRAIN_DATASET_PATH, loader=loader, extensions='npz',
                               transform=transform_train)
     train_loader=DataLoader(train_set,shuffle=shuffle,num_workers=num_workers,batch_size=batch_size)
     return train_loader
@@ -269,7 +270,7 @@ def get_test_dataloader(mean, std, batch_size=16, num_workers=2, shuffle=True):
     # test_set = DatasetFolder('./data/dataset/test', loader=lambda x: Image.open(x), extensions='png',
     #                           transform=transform_test)
     #使用自定义数据加载器
-    test_set = ImageClinicalDataset('./data/dataset1/test', loader=loader, extensions='npz',
+    test_set = ImageClinicalDataset(gs.TEST_DATASET_PATH, loader=loader, extensions='npz',
                                                         transform=transform_test)
     test_loader = DataLoader(test_set, shuffle=shuffle, num_workers=num_workers, batch_size=batch_size)
 

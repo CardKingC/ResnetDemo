@@ -22,6 +22,7 @@ from utils import get_network
 def train(epoch):
 
     start = time.time()
+    #模型切换到训练态更新参数
     net.train()
     for batch_index, (data, labels) in enumerate(training_loader):
 
@@ -36,9 +37,10 @@ def train(epoch):
         outputs=outputs.to(torch.float)
         labels=labels.to(torch.float)
 
-        print(outputs)
-        print()
-        print(labels)
+        #
+        # print(outputs)
+        # print()
+        # print(labels)
 
         loss = loss_function(outputs, labels)
         loss.backward()
@@ -182,6 +184,7 @@ if __name__=='__main__':
     # writer = SummaryWriter(log_dir=os.path.join(
     #     settings.LOG_DIR, settings.NET, settings.TIME_NOW))
     # input_tensor = torch.Tensor(1, 1, 32, 32)
+    # 可视化模型计算图
     # if settings.GPU:
     #     input_tensor = input_tensor.cuda()
     # writer.add_graph(net, input_tensor)
@@ -192,7 +195,9 @@ if __name__=='__main__':
     checkpoint_path = os.path.join(checkpoint_path, '{net}-{epoch}-{type}.pth')
 
     best_acc = 0.0
+    #中断恢复
     if settings.RESUME:
+        #加载目前最优参数并输出结果
         best_weights = best_acc_weights(os.path.join(settings.CHECKPOINT_PATH, args.net, recent_folder))
         if best_weights:
             weights_path = os.path.join(settings.CHECKPOINT_PATH, args.net, recent_folder, best_weights)
@@ -201,18 +206,18 @@ if __name__=='__main__':
             net.load_state_dict(torch.load(weights_path))
             best_acc = eval_training(tb=False)
             print('best acc is {:0.2f}'.format(best_acc))
-
+        #加载目前最近批次参数继续训练
         recent_weights_file = most_recent_weights(os.path.join(settings.CHECKPOINT_PATH, args.net, recent_folder))
         if not recent_weights_file:
             raise Exception('no recent weights file were found')
         weights_path = os.path.join(settings.CHECKPOINT_PATH, args.net, recent_folder, recent_weights_file)
         print('loading weights file {} to resume training.....'.format(weights_path))
         net.load_state_dict(torch.load(weights_path))
-
         resume_epoch = last_epoch(os.path.join(settings.CHECKPOINT_PATH, args.net, recent_folder))
     for epoch in range(1, settings.EPOCH + 1):
         if epoch > settings.WARMUP:
             train_scheduler.step(epoch)
+        #恢复到模型训练的批次
         if settings.RESUME:
             if epoch <= resume_epoch:
                 continue
