@@ -101,7 +101,7 @@ class ResNet(nn.Module):
         self.avg_pool = nn.AdaptiveAvgPool2d((1, 1))
         if not self.useCli:
             self.cdata_num=0
-        self.fc1 = nn.Linear(512 * block.expansion+self.cdata_num, 128)
+        self.fc1 = nn.Linear(512 * block.expansion, 128)
         self.fc2 = nn.Linear(128+self.cdata_num,32)
         self.fc3 = nn.Linear(32,1)
         self.sigmoid=nn.Sigmoid()
@@ -141,7 +141,7 @@ class ResNet(nn.Module):
         output = self.conv5_x(output)
         output = self.avg_pool(output)
         output = output.view(output.size(0),-1)
-        output-self.fc1(output)
+        output=self.fc1(output)
         if self.useCli:
             output=torch.cat((output,cdata),dim=1)
         output = self.fc2(output)
