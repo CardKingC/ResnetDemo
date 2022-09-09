@@ -1,5 +1,7 @@
 import argparse
 import os
+import shutil
+
 import torch
 import torch.nn as nn
 from conf import global_settings as settings
@@ -235,7 +237,11 @@ if __name__=='__main__':
             weights_path = checkpoint_path.format(net=args.net, epoch=epoch, type='regular')
             print('saving weights file to {}'.format(weights_path))
             torch.save(net.state_dict(), weights_path)
-
+    best_result = os.join.path(checkpoint_path, best_acc_weights(checkpoint_path))
+    best_result_path=r'./result'
+    if not os.path.exists(best_result_path):
+        os.makedirs(best_result_path)
+    shutil.copyfile(best_result, os.join.path(best_result_path,args.net+'-'+settings.TIME_NOW+'.pth'))
     #writer.close()
 
 
