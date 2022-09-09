@@ -39,7 +39,7 @@ if __name__=='__main__':
         batch_size=settings.BATCH_SIZE,
     )
 
-    net.load_state_dict(torch.load(r'checkpoint\3\cresnet18-512-135-32-1-imgcli.pth'))
+    net.load_state_dict(torch.load(r'checkpoint\4\cresnet18-1.pth'))
     print(net)
     net.eval()
 

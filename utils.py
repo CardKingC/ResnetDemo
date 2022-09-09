@@ -16,9 +16,11 @@ import torchvision.transforms as transforms
 from torch.utils.data import DataLoader,Dataset
 from torchvision.datasets import DatasetFolder
 from conf import global_settings as gs
+from sklearn.model_selection import KFold
 
 
-def get_network(net,useCli=False):
+
+def get_network(net,useCli=True):
     """ return given network
     """
     if net == 'vgg16':
@@ -81,16 +83,16 @@ def get_network(net,useCli=False):
         net = resnet18(useCli=useCli)
     elif net == 'cresnet34':
         from models.resnet2 import resnet34
-        net = resnet34()
+        net = resnet34(useCli=useCli)
     elif net == 'cresnet50':
         from models.resnet2 import resnet50
-        net = resnet50()
+        net = resnet50(useCli=useCli)
     elif net == 'cresnet101':
         from models.resnet2 import resnet101
-        net = resnet101()
+        net = resnet101(useCli=useCli)
     elif net == 'resnet152':
         from models.resnet2 import resnet152
-        net = resnet152()
+        net = resnet152(useCli=useCli)
     # elif net == 'preactresnet18':
     #     from models.preactresnet import preactresnet18
     #     net = preactresnet18()
@@ -244,7 +246,7 @@ def get_training_dataloader(mean, std, batch_size=16, num_workers=2, shuffle=Tru
                               transform=transform_train)
     train_loader=DataLoader(train_set,shuffle=shuffle,num_workers=num_workers,batch_size=batch_size)
     return train_loader
-def get_training_dataloader(mean, std, batch_size=16, num_workers=2, shuffle=True):
+def get_valid_dataloader(mean, std, batch_size=16, num_workers=2, shuffle=True):
     """ return training dataloader
     Args:
         mean: mean of cifar100 training dataset
@@ -278,7 +280,6 @@ def get_training_dataloader(mean, std, batch_size=16, num_workers=2, shuffle=Tru
                               transform=transform_valid)
     valid_loader=DataLoader(valid_set,shuffle=shuffle,num_workers=num_workers,batch_size=batch_size)
     return valid_loader
-
 def get_test_dataloader(mean, std, batch_size=16, num_workers=2, shuffle=True):
     """ return training dataloader
     Args:
@@ -309,6 +310,23 @@ def get_test_dataloader(mean, std, batch_size=16, num_workers=2, shuffle=True):
     test_loader = DataLoader(test_set, shuffle=shuffle, num_workers=num_workers, batch_size=batch_size)
 
     return test_loader
+
+def get_kfolder_dataloader(k,batch_size=gs.BATCH_SIZE, num_workers=0, shuffle=True):
+    transform_test = transforms.Compose([
+        transforms.Resize((32, 32)),
+        transforms.ToTensor(),
+        # transforms.Normalize(mean, std)
+    ])
+
+    kf=KFold(n_splits=k,shuffle=True,random_state=0)
+    data=ImageClinicalDataset(gs.TRAIN_DATASET_PATH, loader=loader, extensions='npz',
+                                                        transform=transform_test)
+    for train_index,val_index in kf.split(data):
+        train_fold=torch.utils.data.dataset.Subset(data, train_index)
+        val_fold = torch.utils.data.dataset.Subset(data, val_index)
+        train_loader = DataLoader(train_fold, shuffle=shuffle, num_workers=num_workers, batch_size=batch_size)
+        val_loader = DataLoader(val_fold, shuffle=shuffle, num_workers=num_workers, batch_size=batch_size)
+        yield (train_loader,val_loader)
 
 def compute_mean_std(cifar100_dataset):
     """compute the mean and std of cifar100 dataset
