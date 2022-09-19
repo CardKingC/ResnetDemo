@@ -154,25 +154,25 @@ def resnet18(useCli=True):
     """
     return ResNet(BasicBlock, [2, 2, 2, 2],1,useCli)
 
-def resnet34():
+def resnet34(useCli=True):
     """ return a ResNet 34 object
     """
-    return ResNet(BasicBlock, [3, 4, 6, 3],1)
+    return ResNet(BasicBlock, [3, 4, 6, 3],1,useCli=useCli)
 
-def resnet50():
+def resnet50(useCli=True):
     """ return a ResNet 50 object
     """
-    return ResNet(BottleNeck, [3, 4, 6, 3],1)
+    return ResNet(BottleNeck, [3, 4, 6, 3],1,useCli=useCli)
 
-def resnet101():
+def resnet101(useCli=True):
     """ return a ResNet 101 object
     """
-    return ResNet(BottleNeck, [3, 4, 23, 3],1)
+    return ResNet(BottleNeck, [3, 4, 23, 3],1,useCli=useCli)
 
-def resnet152():
+def resnet152(useCli=True):
     """ return a ResNet 152 object
     """
-    return ResNet(BottleNeck, [3, 8, 36, 3],1)
+    return ResNet(BottleNeck, [3, 8, 36, 3],1,useCli=useCli)
 
 
 

@@ -30,8 +30,8 @@ def train(epoch):
 
         if settings.GPU:
             labels = labels.cuda()
-            # images = images.cuda()
-            data = {key: value.cuda() for (key, value) in data.items()}
+            data = data.cuda()
+            #data = {key: value.cuda() for (key, value) in data.items()}
 
         optimizer.zero_grad()
 
@@ -61,7 +61,7 @@ def train(epoch):
             loss.item(),
             optimizer.param_groups[0]['lr'],
             epoch=epoch,
-            trained_samples=batch_index * settings.BATCH_SIZE + len(data['image']),
+            trained_samples=batch_index * settings.BATCH_SIZE + len(data),
             total_samples=len(training_loader.dataset)
         ))
 
@@ -80,8 +80,8 @@ def train(epoch):
 
     print('epoch {} training time consumed: {:.2f}s'.format(epoch, finish - start))
 
-    print('last layer:')
-    print(last_layer)
+    # print('last layer:')
+    # print(last_layer)
 
 @torch.no_grad()
 def eval_training(epoch=0, tb=True):
@@ -95,8 +95,8 @@ def eval_training(epoch=0, tb=True):
     for (data, labels) in test_loader:
 
         if settings.GPU:
-            #images = images.cuda()
-            data={key:value.cuda() for (key,value) in data.items()}
+            data = data.cuda()
+            #data={key:value.cuda() for (key,value) in data.items()}
             labels = labels.cuda()
 
         outputs = net(data)
@@ -125,7 +125,6 @@ def eval_training(epoch=0, tb=True):
         correct.float() / len(test_loader.dataset),
         finish - start
     ))
-    print()
 
     # add informations to tensorboard
     # if tb:
@@ -194,7 +193,7 @@ if __name__=='__main__':
     # create checkpoint folder to save model
     if not os.path.exists(checkpoint_path):
         os.makedirs(checkpoint_path)
-    checkpoint_path = os.path.join(checkpoint_path, '{net}-{epoch}-{type}.pth')
+    pth_path = os.path.join(checkpoint_path, '{net}-{epoch}-{type}.pth')
 
     best_acc = 0.0
     #中断恢复
@@ -227,21 +226,21 @@ if __name__=='__main__':
         acc = eval_training(epoch)
         # start to save best performance model after learning rate decay to 0.01
         if epoch > settings.MILESTONES[1] and best_acc < acc:
-            weights_path = checkpoint_path.format(net=args.net, epoch=epoch, type='best')
+            weights_path = pth_path.format(net=args.net, epoch=epoch, type='best')
             print('saving weights file to {}'.format(weights_path))
             torch.save(net.state_dict(), weights_path)
             best_acc = acc
             continue
 
         if not epoch % settings.SAVE_EPOCH:
-            weights_path = checkpoint_path.format(net=args.net, epoch=epoch, type='regular')
+            weights_path = pth_path.format(net=args.net, epoch=epoch, type='regular')
             print('saving weights file to {}'.format(weights_path))
             torch.save(net.state_dict(), weights_path)
-    best_result = os.join.path(checkpoint_path, best_acc_weights(checkpoint_path))
+    best_result = os.path.join(checkpoint_path, best_acc_weights(checkpoint_path))
     best_result_path=r'./result'
     if not os.path.exists(best_result_path):
         os.makedirs(best_result_path)
-    shutil.copyfile(best_result, os.join.path(best_result_path,args.net+'-'+settings.TIME_NOW+'.pth'))
+    shutil.copyfile(best_result, os.path.join(best_result_path,args.net+'-'+settings.TIME_NOW+'.pth'))
     #writer.close()
 
 

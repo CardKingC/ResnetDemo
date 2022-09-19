@@ -55,8 +55,8 @@ if __name__=='__main__':
             print("iteration: {}\ttotal {} iterations".format(n_iter + 1, len(cifar100_test_loader)))
 
             if settings.GPU:
-                # images = images.cuda()
-                image = {key: value.cuda() for (key, value) in image.items()}
+                image = image.cuda()
+                #image = {key: value.cuda() for (key, value) in image.items()}
                 label = label.cuda()
                 # print('GPU INFO.....')
                 # print(torch.cuda.memory_summary(), end='')

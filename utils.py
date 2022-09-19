@@ -233,17 +233,13 @@ def get_training_dataloader(mean, std, batch_size=16, num_workers=2, shuffle=Tru
         transforms.ToTensor(),
         #transforms.Normalize(mean, std)
     ])
-    #cifar100_training = CIFAR100Train(path, transform=transform_train)
-    # cifar100_training = torchvision.datasets.CIFAR100(root='./data', train=True, download=True, transform=transform_train)
-    # training_loader = DataLoader(
-    #     cifar100_training, shuffle=shuffle, num_workers=num_workers, batch_size=batch_size)
 
 
-    #train_set=DatasetFolder('./data/dataset/train',loader=lambda x:Image.open(x),extensions='png',transform=transform_train)
+    train_set=DatasetFolder(gs.TRAIN_DATASET_PATH,loader=lambda x:Image.open(x),extensions='png',transform=transform_train)
 
     #使用自定义数据加载器加载npz文件
-    train_set = ImageClinicalDataset(gs.TRAIN_DATASET_PATH, loader=loader, extensions='npz',
-                              transform=transform_train)
+    # train_set = ImageClinicalDataset(gs.TRAIN_DATASET_PATH, loader=loader, extensions='npz',
+    #                           transform=transform_train)
     train_loader=DataLoader(train_set,shuffle=shuffle,num_workers=num_workers,batch_size=batch_size)
     return train_loader
 def get_valid_dataloader(mean, std, batch_size=16, num_workers=2, shuffle=True):
@@ -273,7 +269,7 @@ def get_valid_dataloader(mean, std, batch_size=16, num_workers=2, shuffle=True):
     #     cifar100_training, shuffle=shuffle, num_workers=num_workers, batch_size=batch_size)
 
 
-    #train_set=DatasetFolder('./data/dataset/train',loader=lambda x:Image.open(x),extensions='png',transform=transform_train)
+    #valid_set=DatasetFolder(gs.VALID_DATASET_PATH,loader=lambda x:Image.open(x),extensions='png',transform=transform_train)
 
     #使用自定义数据加载器加载npz文件
     valid_set = ImageClinicalDataset(gs.VALID_DATASET_PATH, loader=loader, extensions='npz',
@@ -302,11 +298,11 @@ def get_test_dataloader(mean, std, batch_size=16, num_workers=2, shuffle=True):
     # test_loader = DataLoader(
     #     cifar100_test, shuffle=shuffle, num_workers=num_workers, batch_size=batch_size)
 
-    # test_set = DatasetFolder('./data/dataset/test', loader=lambda x: Image.open(x), extensions='png',
-    #                           transform=transform_test)
+    test_set = DatasetFolder(gs.TEST_DATASET_PATH, loader=lambda x: Image.open(x), extensions='png',
+                               transform=transform_test)
     #使用自定义数据加载器
-    test_set = ImageClinicalDataset(gs.TEST_DATASET_PATH, loader=loader, extensions='npz',
-                                                        transform=transform_test)
+    # test_set = ImageClinicalDataset(gs.TEST_DATASET_PATH, loader=loader, extensions='npz',
+    #                                                     transform=transform_test)
     test_loader = DataLoader(test_set, shuffle=shuffle, num_workers=num_workers, batch_size=batch_size)
 
     return test_loader
