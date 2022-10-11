@@ -17,7 +17,7 @@ from datetime import datetime
 
 from models.resnet import resnet18
 
-from utils import  get_training_dataloader, get_test_dataloader, WarmUpLR, \
+from utils import  get_training_dataloader, get_valid_dataloader, WarmUpLR, \
     most_recent_folder, most_recent_weights, last_epoch, best_acc_weights
 from utils import get_network
 
@@ -92,7 +92,7 @@ def eval_training(epoch=0, tb=True):
     test_loss = 0.0 # cost function error
     correct = 0.0
 
-    for (data, labels) in test_loader:
+    for (data, labels) in valid_loader:
 
         if settings.GPU:
             data = data.cuda()
@@ -121,17 +121,17 @@ def eval_training(epoch=0, tb=True):
     print('Evaluating Network.....')
     print('Test set: Epoch: {}, Average loss: {:.4f}, Accuracy: {:.4f}, Time consumed:{:.2f}s'.format(
         epoch,
-        test_loss / len(test_loader.dataset),
-        correct.float() / len(test_loader.dataset),
+        test_loss / len(valid_loader.dataset),
+        correct.float() / len(valid_loader.dataset),
         finish - start
     ))
 
     # add informations to tensorboard
     # if tb:
-    #     writer.add_scalar('Test/Average loss', test_loss / len(test_loader.dataset), epoch)
-    #     writer.add_scalar('Test/Accuracy', correct.float() / len(test_loader.dataset), epoch)
+    #     writer.add_scalar('Test/Average loss', test_loss / len(valid_loader.dataset), epoch)
+    #     writer.add_scalar('Test/Accuracy', correct.float() / len(valid_loader.dataset), epoch)
 
-    return correct.float() / len(test_loader.dataset)
+    return correct.float() / len(valid_loader.dataset)
 
 if __name__=='__main__':
     parser = argparse.ArgumentParser()
@@ -143,16 +143,12 @@ if __name__=='__main__':
         net = net.cuda()
     # data preprocessing:
     training_loader = get_training_dataloader(
-        settings.CIFAR100_TRAIN_MEAN,
-        settings.CIFAR100_TRAIN_STD,
         num_workers=0,
         batch_size=settings.BATCH_SIZE,
         shuffle=True
     )
 
-    test_loader = get_test_dataloader(
-        settings.CIFAR100_TRAIN_MEAN,
-        settings.CIFAR100_TRAIN_STD,
+    valid_loader = get_valid_dataloader(
         num_workers=0,
         batch_size=settings.BATCH_SIZE,
         shuffle=True

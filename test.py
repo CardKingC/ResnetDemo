@@ -26,25 +26,23 @@ from utils import get_training_dataloader, get_test_dataloader, WarmUpLR, \
 if __name__=='__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('-net', type=str, required=True, help='net type')
+    parser.add_argument('-pth', type=str, required=True, help='weight path')
     args = parser.parse_args()
     net = get_network(args.net,useCli=True)
     if settings.GPU:
         net=net.cuda()
 
     cifar100_test_loader = get_test_dataloader(
-        settings.CIFAR100_TRAIN_MEAN,
-        settings.CIFAR100_TRAIN_STD,
         #settings.CIFAR100_PATH,
         num_workers=0,
         batch_size=settings.BATCH_SIZE,
     )
 
-    net.load_state_dict(torch.load(r'checkpoint\4\cresnet18-1.pth'))
+    net.load_state_dict(torch.load(net.pth))
     print(net)
     net.eval()
 
     correct_1 = 0.0
-    correct_5 = 0.0
     total = 0
     y_true=[]
     y_score=[]
