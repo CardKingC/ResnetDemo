@@ -241,15 +241,15 @@ def get_training_dataloader(batch_size=16, num_workers=2, shuffle=True,in_type=g
         # transforms.Normalize(mean, std)
     ])
     if in_type == 0:
-        train_set = DatasetFolder(gs.VALID_DATASET_PATH, loader=lambda x: Image.open(x), extensions='png',
+        train_set = DatasetFolder(gs.TRAIN_DATASET_PATH, loader=lambda x: Image.open(x), extensions='png',
                                   transform=transform_train)
     elif in_type == 1:
         # 加载.npy文件
-        train_set = ImageClinicalDataset(gs.VALID_DATASET_PATH, loader=loader2, extensions='npy',
+        train_set = ImageClinicalDataset(gs.TRAIN_DATASET_PATH, loader=loader2, extensions='npy',
                                          transform=transform_train)
     else:
         # 使用自定义数据加载器加载npz文件
-        train_set = ImageClinicalDataset(gs.VALID_DATASET_PATH, loader=loader, extensions='npz',
+        train_set = ImageClinicalDataset(gs.TRAIN_DATASET_PATH, loader=loader, extensions='npz',
                                          transform=transform_train)
     train_loader = DataLoader(train_set, shuffle=shuffle, num_workers=num_workers, batch_size=batch_size)
     return train_loader
@@ -307,31 +307,40 @@ def get_test_dataloader(batch_size=16, num_workers=2, shuffle=True,in_type=gs.IN
         # transforms.Normalize(mean, std)
     ])
     if in_type == 0:
-        test_set = DatasetFolder(gs.VALID_DATASET_PATH, loader=lambda x: Image.open(x), extensions='png',
+        test_set = DatasetFolder(gs.TEST_DATASET_PATH, loader=lambda x: Image.open(x), extensions='png',
                                   transform=transform_test)
     elif in_type == 1:
-        test_set = ImageClinicalDataset(gs.VALID_DATASET_PATH, loader=loader2, extensions='npy',
+        test_set = ImageClinicalDataset(gs.TEST_DATASET_PATH, loader=loader2, extensions='npy',
                                          transform=transform_test)
     else:
         # 使用自定义数据加载器加载npz文件
-        test_set = ImageClinicalDataset(gs.VALID_DATASET_PATH, loader=loader, extensions='npz',
+        test_set = ImageClinicalDataset(gs.TEST_DATASET_PATH, loader=loader, extensions='npz',
                                          transform=transform_test)
     test_loader = DataLoader(test_set, shuffle=shuffle, num_workers=num_workers, batch_size=batch_size)
     return test_loader
 
-def get_kfolder_dataloader(k,batch_size=gs.BATCH_SIZE, num_workers=0, shuffle=True):
-    transform_test = transforms.Compose([
+def get_kfolder_dataloader(k,batch_size=gs.BATCH_SIZE, num_workers=0, shuffle=True,in_type=gs.IN_TYPE):
+    transform_train = transforms.Compose([
         transforms.Resize((32, 32)),
         transforms.ToTensor(),
         # transforms.Normalize(mean, std)
     ])
 
-    kf=KFold(n_splits=k,shuffle=True,random_state=0)
-    data=ImageClinicalDataset(gs.TRAIN_DATASET_PATH, loader=loader, extensions='npz',
-                                                        transform=transform_test)
-    for train_index,val_index in kf.split(data):
-        train_fold=torch.utils.data.dataset.Subset(data, train_index)
-        val_fold = torch.utils.data.dataset.Subset(data, val_index)
+    if in_type == 0:
+        train_set = DatasetFolder(gs.TRAIN_DATASET_PATH, loader=lambda x: Image.open(x), extensions='png',
+                                  transform=transform_train)
+    elif in_type == 1:
+        # 加载.npy文件
+        train_set = ImageClinicalDataset(gs.TRAIN_DATASET_PATH, loader=loader2, extensions='npy',
+                                         transform=transform_train)
+    else:
+        # 使用自定义数据加载器加载npz文件
+        train_set = ImageClinicalDataset(gs.TRAIN_DATASET_PATH, loader=loader, extensions='npz',
+                                         transform=transform_train)
+    kf = KFold(n_splits=k, shuffle=True, random_state=0)
+    for train_index,val_index in kf.split(train_set):
+        train_fold=torch.utils.data.dataset.Subset(train_set, train_index)
+        val_fold = torch.utils.data.dataset.Subset(train_set, val_index)
         train_loader = DataLoader(train_fold, shuffle=shuffle, num_workers=num_workers, batch_size=batch_size)
         val_loader = DataLoader(val_fold, shuffle=shuffle, num_workers=num_workers, batch_size=batch_size)
         yield (train_loader,val_loader)

@@ -14,7 +14,7 @@ import time
 from datetime import datetime
 
 from models.resnet import resnet18
-
+from conf import global_settings as gs
 from utils import  get_kfolder_dataloader,WarmUpLR, \
     most_recent_folder, most_recent_weights, last_epoch, best_acc_weights
 from utils import get_network
@@ -29,8 +29,10 @@ def train(epoch):
 
         if settings.GPU:
             labels = labels.cuda()
-            # images = images.cuda()
-            data = {key: value.cuda() for (key, value) in data.items()}
+            if gs.IN_TYPE==0:
+                data = data.cuda()
+            else:
+                data = {key: value.cuda() for (key, value) in data.items()}
 
         optimizer.zero_grad()
 
@@ -47,20 +49,20 @@ def train(epoch):
         loss.backward()
         optimizer.step()
 
-        n_iter = (epoch - 1) * len(training_loader) + batch_index + 1
-
-        last_layer = list(net.children())[-1]
         # for name, para in last_layer.named_parameters():
         #     if 'weight' in name:
         #         writer.add_scalar('LastLayerGradients/grad_norm2_weights', para.grad.norm(), n_iter)
         #     if 'bias' in name:
         #         writer.add_scalar('LastLayerGradients/grad_norm2_bias', para.grad.norm(), n_iter)
-
+        if gs.IN_TYPE==0:
+            trained_samples = batch_index * settings.BATCH_SIZE + len(data)
+        else:
+            trained_samples=batch_index * settings.BATCH_SIZE + len(data['image'])
         print('Training Epoch: {epoch} [{trained_samples}/{total_samples}]\tLoss: {:0.4f}\tLR: {:0.6f}'.format(
             loss.item(),
             optimizer.param_groups[0]['lr'],
             epoch=epoch,
-            trained_samples=batch_index * settings.BATCH_SIZE + len(data['image']),
+            trained_samples=trained_samples,
             total_samples=len(training_loader.dataset)
         ))
 

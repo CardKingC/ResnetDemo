@@ -12,7 +12,7 @@ from torch.utils.tensorboard import SummaryWriter
 
 import time
 from datetime import datetime
-
+from conf import global_settings as gs
 #画ROC曲线
 from sklearn.metrics import roc_curve,auc,confusion_matrix,classification_report
 import matplotlib.pyplot as plt
@@ -38,7 +38,7 @@ if __name__=='__main__':
         batch_size=settings.BATCH_SIZE,
     )
 
-    net.load_state_dict(torch.load(net.pth))
+    net.load_state_dict(torch.load(args.pth))
     print(net)
     net.eval()
 
@@ -54,8 +54,10 @@ if __name__=='__main__':
 
             if settings.GPU:
                 image = image.cuda()
-                #image = {key: value.cuda() for (key, value) in image.items()}
-                label = label.cuda()
+                if gs.IN_TYPE == 0:
+                    data = data.cuda()
+                else:
+                    data = {key: value.cuda() for (key, value) in data.items()}
                 # print('GPU INFO.....')
                 # print(torch.cuda.memory_summary(), end='')
 

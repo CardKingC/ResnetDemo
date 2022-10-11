@@ -16,7 +16,7 @@ import time
 from datetime import datetime
 
 from models.resnet import resnet18
-
+from conf import global_settings as gs
 from utils import  get_training_dataloader, get_valid_dataloader, WarmUpLR, \
     most_recent_folder, most_recent_weights, last_epoch, best_acc_weights
 from utils import get_network
@@ -30,8 +30,10 @@ def train(epoch):
 
         if settings.GPU:
             labels = labels.cuda()
-            data = data.cuda()
-            #data = {key: value.cuda() for (key, value) in data.items()}
+            if gs.IN_TYPE == 0:
+                data = data.cuda()
+            else:
+                data = {key: value.cuda() for (key, value) in data.items()}
 
         optimizer.zero_grad()
 
@@ -95,8 +97,10 @@ def eval_training(epoch=0, tb=True):
     for (data, labels) in valid_loader:
 
         if settings.GPU:
-            data = data.cuda()
-            #data={key:value.cuda() for (key,value) in data.items()}
+            if gs.IN_TYPE == 0:
+                data = data.cuda()
+            else:
+                data = {key: value.cuda() for (key, value) in data.items()}
             labels = labels.cuda()
 
         outputs = net(data)
