@@ -20,6 +20,7 @@ from sklearn.model_selection import KFold
 
 
 
+
 def get_network(net,useCli=True):
     """ return given network
     """
@@ -171,7 +172,20 @@ def get_network(net,useCli=True):
     # elif net == 'stochasticdepth101':
     #     from models.stochasticdepth import stochastic_depth_resnet101
     #     net = stochastic_depth_resnet101()
-
+    elif net=='vit':
+        from vit_pytorch import ViT
+        net=ViT(
+            image_size = 32,
+            patch_size = 4,
+            num_classes = 1,
+            channels=1,
+            dim = 512,
+            depth = 6,
+            heads = 16,
+            mlp_dim = 2048,
+            dropout = 0.1,
+            emb_dropout = 0.1
+        )
     else:
         print('the network name you have entered is not supported yet')
         sys.exit()
