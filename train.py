@@ -140,9 +140,11 @@ def eval_training(epoch=0, tb=True):
 if __name__=='__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('-net', type=str, required=True, help='net type')
+    parser.add_argument('-pth', type=str, required=False,default=None, help='pretrain')
     args = parser.parse_args()
     net = get_network(args.net)
-
+    if args.pth is not None:
+        net.load_state_dict(torch.load(args.pth))
     if settings.GPU:
         net = net.cuda()
     # data preprocessing:
