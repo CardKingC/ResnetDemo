@@ -222,7 +222,7 @@ def loader2(x):
         'cdata':np.arange(7)
     }
 
-def get_training_dataloader(batch_size=16, num_workers=2, shuffle=True,in_type=gs.IN_TYPE):
+def get_training_dataloader(path=gs.TRAIN_DATASET_PATH,batch_size=16, num_workers=2, shuffle=True,in_type=gs.IN_TYPE):
     """ return training dataloader
     Args:
         mean: mean of cifar100 training dataset
@@ -244,19 +244,19 @@ def get_training_dataloader(batch_size=16, num_workers=2, shuffle=True,in_type=g
         # transforms.Normalize(mean, std)
     ])
     if in_type == 0:
-        train_set = DatasetFolder(gs.TRAIN_DATASET_PATH, loader=lambda x: Image.open(x), extensions='png',
+        train_set = DatasetFolder(path, loader=lambda x: Image.open(x), extensions='png',
                                   transform=transform_train)
     elif in_type == 1:
         # 加载.npy文件
-        train_set = ImageClinicalDataset(gs.TRAIN_DATASET_PATH, loader=loader2, extensions='npy',
+        train_set = ImageClinicalDataset(path, loader=loader2, extensions='npy',
                                          transform=transform_train)
     else:
         # 使用自定义数据加载器加载npz文件
-        train_set = ImageClinicalDataset(gs.TRAIN_DATASET_PATH, loader=loader, extensions='npz',
+        train_set = ImageClinicalDataset(path, loader=loader, extensions='npz',
                                          transform=transform_train)
     train_loader = DataLoader(train_set, shuffle=shuffle, num_workers=num_workers, batch_size=batch_size)
     return train_loader
-def get_valid_dataloader(batch_size=16, num_workers=2, shuffle=True,in_type=gs.IN_TYPE):
+def get_valid_dataloader(path=gs.VALID_DATASET_PATH,batch_size=16, num_workers=2, shuffle=True,in_type=gs.IN_TYPE):
     """ return training dataloader
     Args:
         mean: mean of cifar100 training dataset
@@ -277,18 +277,18 @@ def get_valid_dataloader(batch_size=16, num_workers=2, shuffle=True,in_type=gs.I
         # transforms.Normalize(mean, std)
     ])
     if in_type==0:
-        valid_set = DatasetFolder(gs.VALID_DATASET_PATH, loader=lambda x: Image.open(x), extensions='png',
+        valid_set = DatasetFolder(path, loader=lambda x: Image.open(x), extensions='png',
                                   transform=transform_valid)
     elif in_type==1:
-        valid_set = ImageClinicalDataset(gs.VALID_DATASET_PATH, loader=loader2, extensions='npy',
+        valid_set = ImageClinicalDataset(path, loader=loader2, extensions='npy',
                               transform=transform_valid)
     else:
         # 使用自定义数据加载器加载npz文件
-        valid_set = ImageClinicalDataset(gs.VALID_DATASET_PATH, loader=loader, extensions='npz',
+        valid_set = ImageClinicalDataset(path, loader=loader, extensions='npz',
                                          transform=transform_valid)
     valid_loader=DataLoader(valid_set,shuffle=shuffle,num_workers=num_workers,batch_size=batch_size)
     return valid_loader
-def get_test_dataloader(batch_size=16, num_workers=2, shuffle=True,in_type=gs.IN_TYPE):
+def get_test_dataloader(path=gs.TEST_DATASET_PATH,batch_size=16, num_workers=2, shuffle=True,in_type=gs.IN_TYPE):
     """ return training dataloader
     Args:
         mean: mean of cifar100 test dataset
@@ -310,17 +310,75 @@ def get_test_dataloader(batch_size=16, num_workers=2, shuffle=True,in_type=gs.IN
         # transforms.Normalize(mean, std)
     ])
     if in_type == 0:
-        test_set = DatasetFolder(gs.TEST_DATASET_PATH, loader=lambda x: Image.open(x), extensions='png',
+        test_set = DatasetFolder(path, loader=lambda x: Image.open(x), extensions='png',
                                   transform=transform_test)
     elif in_type == 1:
-        test_set = ImageClinicalDataset(gs.TEST_DATASET_PATH, loader=loader2, extensions='npy',
+        test_set = ImageClinicalDataset(path, loader=loader2, extensions='npy',
                                          transform=transform_test)
     else:
         # 使用自定义数据加载器加载npz文件
-        test_set = ImageClinicalDataset(gs.TEST_DATASET_PATH, loader=loader, extensions='npz',
+        test_set = ImageClinicalDataset(path, loader=loader, extensions='npz',
                                          transform=transform_test)
     test_loader = DataLoader(test_set, shuffle=shuffle, num_workers=num_workers, batch_size=batch_size)
     return test_loader
+
+
+
+
+class MyDataset(Dataset):
+    def __init__(self, img_path, transform=None):
+        super(MyDataset, self).__init__()
+        self.root = img_path
+        imgs = []
+        for image in os.listdir(self.root):
+            if image[-4:]!='.png':
+                continue
+            imgs.append(os.path.join(self.root,image))
+        self.img = imgs
+        self.transform = transform
+
+    def __len__(self):
+        return len(self.img)
+
+    def __getitem__(self, item):
+        img = self.img[item]
+        img = Image.open(img)
+        # 此时img是PIL.Image类型   label是str类型
+        if transforms is not None:
+            img = self.transform(img)
+        return img
+
+def get_dataloader(path=gs.TRAIN_DATASET_PATH,batch_size=16, num_workers=0, shuffle=True,in_type=gs.IN_TYPE):
+    """ return training dataloader
+    Args:
+        mean: mean of cifar100 training dataset
+        std: std of cifar100 training dataset
+        path: path to cifar100 training python dataset
+        batch_size: dataloader batchsize
+        num_workers: dataloader num_works
+        shuffle: whether to shuffle
+    Returns: train_data_loader:torch dataloader object
+    """
+
+    transform_train = transforms.Compose([
+        # transforms.ToPILImage(),
+        # transforms.RandomCrop(32, padding=4),
+        # transforms.RandomHorizontalFlip(),
+        # transforms.RandomRotation(15),
+        transforms.Resize((32, 32)),
+        transforms.ToTensor(),
+        # transforms.Normalize(mean, std)
+    ])
+    if in_type == 0:
+        train_set = MyDataset(path,transform=transform_train)
+    elif in_type == 1:
+        # 加载.npy文件
+        train_set = MyDataset(path,transform=transform_train)
+    else:
+        # 使用自定义数据加载器加载npz文件
+        train_set = MyDataset(path,transform=transform_train)
+    train_loader = DataLoader(train_set, shuffle=shuffle, num_workers=num_workers, batch_size=batch_size)
+    return train_loader
 
 def get_kfolder_dataloader(k,batch_size=gs.BATCH_SIZE, num_workers=0, shuffle=True,in_type=gs.IN_TYPE):
     transform_train = transforms.Compose([

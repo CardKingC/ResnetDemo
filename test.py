@@ -53,6 +53,7 @@ if __name__=='__main__':
             print("iteration: {}\ttotal {} iterations".format(n_iter + 1, len(cifar100_test_loader)))
 
             if settings.GPU:
+                label=label.cuda()
                 image = image.cuda()
                 if gs.IN_TYPE == 0:
                     data = data.cuda()
