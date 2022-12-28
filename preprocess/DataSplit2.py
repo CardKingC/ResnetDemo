@@ -100,7 +100,7 @@ def data_set_split(src_data_folder, target_data_folder, train_scale=0.8, val_sca
         print("测试集{}：{}张".format(test_folder, test_num))
 
 if __name__ == '__main__':
-    src_data_folder = r"./data/dataset/image"
-    target_data_folder = r"./data/dataset/image_dataset"
+    src_data_folder = r"../data/LIDC-IDRI_2D/"
+    target_data_folder = r"../data/lidc_dataset/"
     data_set_split(src_data_folder, target_data_folder)
 

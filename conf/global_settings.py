@@ -10,7 +10,7 @@ from datetime import datetime
     1、单独训练时(train.py)，须有train，val，test目录
     2、使用交叉验证时，须有train，test目录，val目录可以为空或没有
 '''
-DATASET_PATH=r'./data/dataset/image_dataset'
+DATASET_PATH=r'./data/lidc_dataset/'
 TRAIN_DATASET_PATH=os.path.join(DATASET_PATH,'train')
 VALID_DATASET_PATH=os.path.join(DATASET_PATH,'val')
 TEST_DATASET_PATH=os.path.join(DATASET_PATH,'test')
@@ -29,7 +29,7 @@ WARMUP=1
 #learning rate 调整的批次
 MILESTONES = [60, 120, 160]
 # use gpu or not
-GPU=True
+GPU=False
 #resume training 恢复中断的训练
 RESUME=False
 # net type
